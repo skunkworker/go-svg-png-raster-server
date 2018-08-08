@@ -19,9 +19,8 @@ const (
 
 func main() {
 	e := echo.New()
-	e.GET("/:rune_name/", func(c echo.Context) error {
+	e.GET("/:rune_name", func(c echo.Context) error {
 		rune_name := c.Param("rune_name")
-
 
 
 		return c.Blob(http.StatusOK, IMAGE_PNG_CONTENT_TYPE,  createImage(rune_name))
@@ -53,14 +52,13 @@ func fontAwesomeIcon(iconName string) (string, error) {
 func createImage(rune_name string) []byte {
 	const S = 1024
 
-
-
 	icon, _ := fontAwesomeIcon(rune_name)
 
 	dc := gg.NewContextForRGBA(image.NewRGBA(image.Rect(0, 0, S, S)))
-	dc.SetRGB255(255,255,255)
+	dc.SetRGBA(0,0,0,0)
 	dc.Clear()
-	dc.SetRGB(0, 0, 0)
+	dc.SetRGB255(10,255,255)
+	//dc.SetRGB(0, 0, 0)
 	if err := dc.LoadFontFace("./fonts/fontawesome/fa-regular-400.ttf", 1024); err != nil {
 		panic(err)
 	}
