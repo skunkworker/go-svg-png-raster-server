@@ -13,11 +13,19 @@ import (
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
+	"github.com/golang/freetype/truetype"
 )
 
 const (
 	IMAGE_PNG_CONTENT_TYPE = "image/png"
 )
+
+type IconRequest struct {
+	Style string
+	Name string
+	Color string
+	Points float64
+}
 
 func main() {
 	data, err := ioutil.ReadFile("fonts/fontawesome/icons.yml")
@@ -30,6 +38,9 @@ func main() {
 	e.GET("/:style/:name", func(c echo.Context) error {
 		iconStyle := c.Param("style")
 		iconName := c.Param("name")
+
+		points := c.QueryParam("points")
+		fmt.Println("points:",points)
 
 		imageBytes, err := createImage(iconName, iconStyle, data)
 
@@ -70,7 +81,6 @@ func fontAwesomeIcon(name, style string, icons []byte) (string, error) {
 	}
 
 
-
 	// TODO: check style and throw error if not found for the icon.
 
 	if foundRune, ok := items[name].(map[interface{}]interface{})["unicode"].(string); ok {
@@ -97,19 +107,12 @@ func createImage(runeName string, runeType string, icons []byte) ([]byte, error)
 	dc.SetRGB255(10,255,255)
 
 	if runeType == "regular" {
-		if err := dc.LoadFontFace("./fonts/fontawesome/fa-regular-400.ttf", 1024); err != nil {
-			panic(err)
-		}
+		loadFontFaceFromCache("fonts/fontawesome/fa-regular-400.ttf", 1024, dc)
 	} else if runeType == "solid" {
-		if err := dc.LoadFontFace("./fonts/fontawesome/fa-solid-900.ttf", 1024); err != nil {
-			panic(err)
-		}
+		loadFontFaceFromCache("fonts/fontawesome/fa-solid-900.ttf", 512, dc)
 	} else if runeType == "brands" {
-		if err := dc.LoadFontFace("./fonts/fontawesome/fa-brands-400.ttf", 1024); err != nil {
-			panic(err)
-		}
+		loadFontFaceFromCache("fonts/fontawesome/fa-brands-400.ttf", 1024, dc)
 	}
-
 
 	dc.DrawStringAnchored(icon, S/2, S/2, 0.5, 0.5)
 
@@ -123,4 +126,25 @@ func getImageBytes(dc *gg.Context) []byte {
 	png.Encode(bufio.NewWriter(&b), dc.Image())
 
 	return b.Bytes()
+}
+
+func loadFontFaceFromCache(fontFaceName string, points float64, dc *gg.Context) {
+	asset, err := Asset(fontFaceName)
+	if err != nil {
+		panic(err)
+	}
+
+	f, err := truetype.Parse(asset)
+	if err != nil {
+		panic(err)
+	}
+	face := truetype.NewFace(f, &truetype.Options{
+		Size: points,
+		// Hinting: font.HintingFull,
+	})
+
+	if err == nil {
+		dc.SetFontFace(face)
+		//dc.fontHeight = points * 72 / 96
+	}
 }
