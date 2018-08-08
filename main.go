@@ -42,6 +42,9 @@ func main() {
 		points := c.QueryParam("points")
 		fmt.Println("points:",points)
 
+		color := c.QueryParam("color")
+		fmt.Println("color:", color)
+		
 		imageBytes, err := createImage(iconName, iconStyle, data)
 
 		if err != nil {
