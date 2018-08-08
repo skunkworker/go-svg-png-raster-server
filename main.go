@@ -7,11 +7,10 @@ import (
 	"bufio"
 	"github.com/labstack/echo"
 	"net/http"
-		"image"
-		"strconv"
+				"strconv"
 		"fmt"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"github.com/golang/freetype/truetype"
 )
@@ -44,7 +43,7 @@ func main() {
 
 		color := c.QueryParam("color")
 		fmt.Println("color:", color)
-		
+
 		imageBytes, err := createImage(iconName, iconStyle, data)
 
 		if err != nil {
@@ -104,7 +103,7 @@ func createImage(runeName string, runeType string, icons []byte) ([]byte, error)
 		return nil, err
 	}
 
-	dc := gg.NewContextForRGBA(image.NewRGBA(image.Rect(0, 0, S, S)))
+	dc := gg.NewContext(S,S)
 	dc.SetRGBA(0,0,0,0)
 	dc.Clear()
 	dc.SetRGB255(10,255,255)
